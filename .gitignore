@@ -4,3 +4,21 @@ __pycache__
 build/
 dist/
 *.egg-info/
+__pycache__
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+# ignore the data folder + vocab too large to upload
+dataset/
+cn/
+OtherStuff/
+google/
+build/
+ckpt/
+zh_ckpt/
+zh_utils/
+dist/
+.ipynb_checkpoints/
+/sentence_splitter/stanza_zh/
