@@ -65,7 +65,12 @@ def get_batch(data_iterator):
 
     # Broadcast data.
     if data_iterator is not None:
-        data = next(data_iterator)
+        try:
+            data = next(data_iterator)
+        except StopIteration:
+            print("bad batch , skipping ...")
+            pass
+            data = next(data_iterator)
     else:
         data = None
     data_b = mpu.broadcast_data(keys, data, datatype)
