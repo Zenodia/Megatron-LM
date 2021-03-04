@@ -1,0 +1,1 @@
+python HFBPETokenizer_trainer.py --infile /workspace/cn/raw_wiki/zh_wiki_jiebacut.txt --bpe_path /workspace/cn/bpe_vocab_demo/ --vocab_size 32000

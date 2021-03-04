@@ -1,0 +1,1 @@
+pip install jieba opencc MicroTokenizer stanza snownlp zhon tokenizers youtokentome

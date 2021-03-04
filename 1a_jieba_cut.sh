@@ -1,0 +1,1 @@
+python jieba_multiprocess_allZH.py --input_dir /workspace/cn/raw_wiki/zh_wiki.txt --output_dir /workspace/cn/raw_wiki/zh_wiki_jiebacut.txt --num_cpu 32

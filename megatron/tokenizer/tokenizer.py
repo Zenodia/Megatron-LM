@@ -17,13 +17,14 @@
 
 from abc import ABC
 from abc import abstractmethod
-
 from .bert_tokenization import FullTokenizer as FullBertTokenizer
 from .gpt2_tokenization import GPT2Tokenizer
-
+from .zh_tokenizer_spm import FullTokenizer as FullSentencePieceTokenizer
+from .zh_tokenizer_jieba import FullTokenizer as JiebaSentencePieceTokenizer
+from .zh_tokenizer_BPE import FullTokenizer as HFBPETokenizer
 
 def build_tokenizer(args):
-    """Initialize tokenizer."""
+    #Initialize tokenizer.
     if args.rank == 0:
         print('> building {} tokenizer ...'.format(args.tokenizer_type),
               flush=True)
@@ -39,16 +40,32 @@ def build_tokenizer(args):
     elif args.tokenizer_type == 'GPT2BPETokenizer':
         assert args.merge_file is not None
         tokenizer = _GPT2BPETokenizer(args.vocab_file, args.merge_file)
+    elif args.tokenizer_type == 'HFBPETokenizer':
+        assert args.merge_file is not None
+        tokenizer = _HFBPETokenizer(args.vocab_file, args.merge_file)
+    elif args.tokenizer_type == 'SentencePieceUnigramTokenizer':
+        assert args.merge_file is not None
+        tokenizer = _SentencePieceUnigramTokenizer(args.vocab_file, args.merge_file)
+    elif args.tokenizer_type == 'JiebaSentencePieceTokenizer':    
+        tokenizer = _JiebaSentencePiece(vocab_file=args.vocab_file)
     else:
         raise NotImplementedError('{} tokenizer is not '
                                   'implemented.'.format(args.tokenizer_type))
-
     # Add vocab size.
-    args.padded_vocab_size = _vocab_size_with_padding(tokenizer.vocab_size,
-                                                      args)
-
+    if args.tokenizer_type not in ['SentencePieceUnigramTokenizer','JiebaSentencePieceTokenizer','HFBPETokenizer' ]  :
+        args.padded_vocab_size = _vocab_size_with_padding(tokenizer.vocab_size,args)
+    
+    else:
+        args.padded_vocab_size = _vocab_size_with_padding(tokenizer.vocab_size(),args)
     return tokenizer
 
+def build_debug(file1,file2, tokenizer_type='bpe'):
+    if tokenizer_type=='wp':
+        tokenizer = _BertWordPieceTokenizer(vocab_file=file1,
+                                            lower_case=False)
+    else:
+        tokenizer = _HFBPETokenizer(file1, file2)
+    return tokenizer
 
 def _vocab_size_with_padding(orig_vocab_size, args):
     """Pad vocab size so it is divisible by model parallel size and
@@ -124,6 +141,105 @@ class AbstractTokenizer(ABC):
                                   'tokenizer'.format(self.name))
 
 
+class _JiebaSentencePiece(AbstractTokenizer):
+    """Original BERT wordpiece tokenizer."""
+
+    def __init__(self, vocab_file, lower_case=False):
+        name = 'Jieba chinese tokenizer'
+        super().__init__(name)
+        self.tokenizer = JiebaSentencePieceTokenizer(vocab_file)
+        self.cls_id = self.tokenizer.vocab['[CLS]']
+        self.sep_id = self.tokenizer.vocab['[SEP]']
+        self.pad_id = self.tokenizer.vocab['[PAD]']
+        self.mask_id = self.tokenizer.vocab['[MASK]']
+
+    @property
+    def vocab_size(self):
+        return self.tokenizer.vocab_size
+
+    @property
+    def vocab(self):
+        return self.tokenizer.vocab
+
+    @property
+    def inv_vocab(self):
+        return self.tokenizer.inv_vocab
+
+    def tokenize(self, text):
+        text_tokens = self.tokenizer.tokenize(text)
+        return self.tokenizer.convert_tokens_to_ids(text_tokens)
+
+    def decode_token_ids(self, token_ids):
+        tokens = self.tokenizer.convert_ids_to_tokens(token_ids)
+        
+        return tokens
+
+    @property
+    def cls(self):
+        return self.cls_id
+
+    @property
+    def sep(self):
+        return self.sep_id
+
+    @property
+    def pad(self):
+        return self.pad_id
+
+    @property
+    def mask(self):
+        return self.mask_id
+
+class _SentencePieceUnigramTokenizer(AbstractTokenizer):
+    """Original Google Sentence Piece tokenizer."""
+
+    def __init__(self, vocab_file, merge_file):
+        name = 'Google_Sentence Piece'
+        super().__init__(name)
+        self.tokenizer= FullSentencePieceTokenizer(vocab_file,merge_file)
+        self.cls_id = self.tokenizer.vocab['[CLS]']
+        self.sep_id = self.tokenizer.vocab['[SEP]']
+        self.pad_id = self.tokenizer.vocab['[PAD]']
+        self.mask_id = self.tokenizer.vocab['[MASK]']
+
+    @property
+    def vocab_size(self):
+        return self.tokenizer.vocab_size
+
+    @property
+    def vocab(self):
+        return self.tokenizer.vocab
+
+    @property
+    def inv_vocab(self):
+        return self.tokenizer.inv_vocab
+
+    def tokenize(self, text):
+        text_tokens = self.tokenizer.tokenize(text)
+        return self.tokenizer.convert_tokens_to_ids(text_tokens)
+
+    def decode_token_ids(self, token_ids):
+        tokens = self.tokenizer.convert_ids_to_tokens(token_ids)
+        
+        return tokens
+
+    @property
+    def cls(self):
+        return self.cls_id
+
+    @property
+    def sep(self):
+        return self.sep_id
+
+    @property
+    def pad(self):
+        return self.pad_id
+
+    @property
+    def mask(self):
+        return self.mask_id
+
+
 class _BertWordPieceTokenizer(AbstractTokenizer):
     """Original BERT wordpiece tokenizer."""
 
@@ -195,7 +311,7 @@ class _GPT2BPETokenizer(AbstractTokenizer):
 
         self.tokenizer = GPT2Tokenizer(vocab_file, merge_file, errors='replace',
                                        special_tokens=[], max_len=None)
-        self.eod_id = self.tokenizer.encoder['<|endoftext|>']
+        self.eod_id = self.tokenizer.encoder['[EOD]']
 
     @property
     def vocab_size(self):
@@ -218,3 +334,52 @@ class _GPT2BPETokenizer(AbstractTokenizer):
     @property
     def eod(self):
         return self.eod_id
+
+class _HFBPETokenizer(AbstractTokenizer):
+    """Original BERT wordpiece tokenizer."""
+
+    def __init__(self, vocab_file,merge_file): 
+        name = 'HuggingFace BPE'
+        super().__init__(name)
+        self.tokenizer = HFBPETokenizer(vocab_file,merge_file)
+        self.cls_id = self.tokenizer.vocab['[CLS]']
+        self.sep_id = self.tokenizer.vocab['[SEP]']
+        self.pad_id = self.tokenizer.vocab['[PAD]']
+        self.mask_id = self.tokenizer.vocab['[MASK]']
+
+    @property
+    def vocab_size(self):
+        return self.tokenizer.vocab_size
+
+    @property
+    def vocab(self):
+        return self.tokenizer.vocab
+
+    @property
+    def inv_vocab(self):
+        return self.tokenizer.inv_vocab
+
+    def tokenize(self, text):
+        text_tokens = self.tokenizer.tokenize(text)
+        return self.tokenizer.convert_tokens_to_ids(text_tokens)
+
+    def decode_token_ids(self, token_ids):
+        tokens = self.tokenizer.convert_ids_to_tokens(token_ids)
+        
+        return tokens
+
+    @property
+    def cls(self):
+        return self.cls_id
+
+    @property
+    def sep(self):
+        return self.sep_id
+
+    @property
+    def pad(self):
+        return self.pad_id
+
+    @property
+    def mask(self):
+        return self.mask_id

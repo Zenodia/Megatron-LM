@@ -1,0 +1,1 @@
+jupyter lab --no-browser --port=$1 --allow-root --NotebookApp.token=''
