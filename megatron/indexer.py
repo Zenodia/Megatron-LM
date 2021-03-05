@@ -60,7 +60,8 @@ class IndexBuilder(object):
                 # batch also has query_tokens and query_pad_data
                 _, _, block_tokens, block_pad_mask, block_sample_data = get_ict_batch(self.dataloader)
             except (StopIteration, IndexError):
-                break
+                #break
+                continue
 
             unwrapped_model = self.model
             while not hasattr(unwrapped_model, 'embed_block'):
