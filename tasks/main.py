@@ -58,7 +58,7 @@ if __name__ == '__main__':
     args = get_args()
     if args.task == 'RACE':
         from race.finetune import main
-    elif args.task in ['MNLI', 'QQP']:
+    elif args.task in ['MNLI', 'QQP','ZH_XNLI']:
         from glue.finetune import main
     elif args.task in ['LAMBADA', 'WIKITEXT103']:
         from zeroshot_gpt2.evaluate import main

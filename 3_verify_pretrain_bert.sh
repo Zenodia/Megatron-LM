@@ -21,7 +21,7 @@ BERT_ARGS="--num-layers 24 \
            --lr 0.0001 \
            --train-iters 1000000 \
            --min-lr 0.00001 \
-           --lr-decay-iters 100 \
+           --lr-decay-iters 990000 \
            --lr-warmup-fraction 0.01 \
            --micro-batch-size 8 \
            --vocab-file $VOCAB_FILE \

@@ -57,7 +57,14 @@ def glue_classification(num_classes, Dataset,
                 model = ClassificationIntermediateStage(
                     num_classes=num_classes, num_tokentypes=2)
         else:
-            model = Classification(num_classes=num_classes, num_tokentypes=2)
+            if args.tokenizer_type=='HFBPETokenizer' and args.task=='ZH_XNLI' :
+                print("============== using custom HuggingFace BPE Tokenizer:{} on task:{} ==============".format(args.tokenizer_type,args.task))
+                model = Classification(num_classes=num_classes, num_tokentypes=5)
+            elif args.tokenizer_type=='HFBPETokenizer' and args.task=='QQP' :
+                print("============== using custom HuggingFace BPE Tokenizer:{} on task:{} ==============".format(args.tokenizer_type,args.task))
+                model = Classification(num_classes=num_classes, num_tokentypes=5)
+            else:
+                model = Classification(num_classes=num_classes, num_tokentypes=2)
 
         return model
 
@@ -86,6 +93,13 @@ def main():
 
         def name_from_datapath(datapath):
             return datapath.split('MNLI')[-1].strip(
+                '.tsv').strip('/').replace('_', '-')
+    elif args.task == 'ZH_XNLI':
+        num_classes = 3
+        from tasks.glue.zh_xnli import ZH_XNLIDataset as Dataset
+        
+        def name_from_datapath(datapath):
+            return datapath.split('xnli')[-1].strip(
                 '.tsv').strip('/').replace('_', '-')
 
     elif args.task == 'QQP':

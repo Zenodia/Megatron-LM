@@ -114,6 +114,7 @@ class AnnealingLR(object):
     def _check_and_set(self, cls_value, sd_value, name):
         """Auxiliary function for checking the values in the checkpoint and
         setting them."""
+        print("cls_value", cls_value)
         if self.override_lr_scheduler:
             print_rank_0(' > overriding {} value to {}'.format(name, cls_value))
             return cls_value

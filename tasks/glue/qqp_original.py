@@ -18,7 +18,7 @@
 from megatron import print_rank_0
 from tasks.data_utils import clean_text
 from .data import GLUEAbstractDataset
-import jieba
+
 
 LABELS = [0, 1]
 
@@ -40,51 +40,53 @@ class QQPDataset(GLUEAbstractDataset):
         first = True
         is_test = False
         with open(filename, 'r') as f:
-            uid=0
-            print(" ================== filename is {} : ================".format(filename))
             for line in f:
-                row = line.strip().split('\t')                
-                if 'dev' in filename or 'text' in filename :
-                    is_test = True                    
-                    print_rank_0('   reading {}, {}, and {} columns and '
+                row = line.strip().split('\t')
+                if first:
+                    first = False
+                    if len(row) == 3:
+                        is_test = True
+                        print_rank_0('   reading {}, {}, and {} columns and '
                                      'setting labels to {}'.format(
-                                         uid, row[1].strip(),
+                                         row[0].strip(), row[1].strip(),
                                          row[2].strip(), self.test_label))
-                    uid+=1
-                else:                        
-                    assert len(row)==3
-                    print_rank_0('    reading {}, {}, {}, and {} columns'
-                                    ' ...'.format(
-                                        uid, row[0].strip(),
-                                        row[1].strip(), row[2].strip()))
-                    uid+=1
-                
+                    else:
+                        assert len(row) == 6
+                        print_rank_0('    reading {}, {}, {}, and {} columns'
+                                     ' ...'.format(
+                                         row[0].strip(), row[3].strip(),
+                                         row[4].strip(), row[5].strip()))
+                    continue
 
-                if len(row)==3:               
-                    uid = int(uid)
-                    text_a = clean_text(row[0].strip())
-                    text_b = clean_text(row[1].strip())
-                    label = int(row[2].strip()) #self.test_label
+                if is_test:
+                    assert len(row) == 3, 'expected length 3: {}'.format(row)
+                    uid = int(row[0].strip())
+                    text_a = clean_text(row[1].strip())
+                    text_b = clean_text(row[2].strip())
+                    label = self.test_label
                     assert len(text_a) > 0
                     assert len(text_b) > 0
-                    if len(text_a) == 0 :
+                else:
+                    if len(row) == 6:
+                        uid = int(row[0].strip())
+                        text_a = clean_text(row[3].strip())
+                        text_b = clean_text(row[4].strip())
+                        label = int(row[5].strip())
+                    else:
+                        print_rank_0('***WARNING*** index error, '
+                                     'skipping: {}'.format(row))
+                        continue
+                    if len(text_a) == 0:
                         print_rank_0('***WARNING*** zero length a, '
                                      'skipping: {}'.format(row))
                         continue
-                    if len(text_b) == 0 :
+                    if len(text_b) == 0:
                         print_rank_0('***WARNING*** zero length b, '
                                      'skipping: {}'.format(row))
                         continue
-
-                else:
-                    print_rank_0('***WARNING*** index error, '
-                                     'skipping: {}'.format(row))
-                    continue
-                    
                 assert label in LABELS
                 assert uid >= 0
-                text_a = ' '.join(list(jieba.cut(text_a)))
-                text_b = ' '.join(list(jieba.cut(text_b)))
+
                 sample = {'uid': uid,
                           'text_a': text_a,
                           'text_b': text_b,
