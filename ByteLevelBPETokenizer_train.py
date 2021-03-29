@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     ByteLevelBPE_tokenizer_pt = ByteLevelBPETokenizer()
     # Get list of paths to corpus files
-    paths = ['/workspace/cn/raw_wiki/zh_wiki_jiebacut.txt']
+    paths = [args.infile]
     # Get GPT2 tokenizer_en vocab size
     
     if args.vocab_size is not None:
@@ -42,12 +42,15 @@ if __name__ == '__main__':
     # Get sequence length max of 1024
     ByteLevelBPE_tokenizer_pt.enable_truncation(max_length=1024)
     # save tokenizer
-    ByteLevelBPE_tokenizer_pt_rep = '/workspace/cn/bpe_vocab_demo/exp/'
+    ByteLevelBPE_tokenizer_pt_rep = args.bpe_path
+    if not os.path.exists(ByteLevelBPE_tokenizer_pt_rep):
+        os.makedirs(ByteLevelBPE_tokenizer_pt_rep, exist_ok=True)
+        
     print("saving trained model to : ",ByteLevelBPE_tokenizer_pt_rep)
     ByteLevelBPE_tokenizer_pt.save_model(ByteLevelBPE_tokenizer_pt_rep)
     print("model saved ! \n\n\n")
     print("testing ...\n\n\n")
-    test_txt="达尔尼克乡达尔尼克乡是罗马尼亚的乡份，位于该国中部，由科瓦斯纳县负责管辖，处于布加勒斯特以北170公里，每年平均降雨量1,048毫米，海拔高度577米，2007年人口952。"
+    test_txt="Rödluvan sprang ut och hämtade stora stenar, som de fyllde vargens mage med."
     output = ByteLevelBPE_tokenizer_pt.encode(test_txt)
     for tok, i in zip(output.tokens, output.ids):
         print("token = {} , id ={}".format(str(tok), str(i)))
