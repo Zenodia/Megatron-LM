@@ -3,13 +3,13 @@ VOCAB_FILE=/workspace/cn/bpe/32k/vocab.json
 MERGE_FILE=/workspace/cn/bpe/32k/merges.txt
 DATA_PATH=/workspace/dataset/demo_gpt_sentence_text_sentence
 
-GPT_ARGS="--num-layers 24 \
-          --hidden-size 1024 \
-          --num-attention-heads 16 \
-          --seq-length 1024 \
-          --max-position-embeddings 1024 \
-          --micro-batch-size 4 \
-          --global-batch-size 8 \
+GPT_ARGS="--num-layers 36 \
+          --hidden-size 2048 \
+          --num-attention-heads 32 \
+          --seq-length 512 \
+          --max-position-embeddings 512 \
+          --micro-batch-size 32 \
+          --global-batch-size 32 \
           --lr 0.00015 \
           --train-iters 500000 \
           --lr-decay-iters 320000 \

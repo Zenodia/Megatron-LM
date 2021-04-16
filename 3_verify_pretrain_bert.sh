@@ -6,12 +6,11 @@
 #line 52 change num_tokentypes 2-->5
 #line 155 change tokenizer_type BertWordPieceLowerCase--> HFBPETokenizer
 
-vocab_size='32k'
 CHECKPOINT_PATH=./zh_ckpt
 VOCAB_FILE=./cn/bpe/32k/vocab.json
 MERGE_FILE=./cn/bpe/32k/merges.txt
 
-DATA_PATH=./dataset/bk_text_sentence
+DATA_PATH=./dataset/demo_bert_text_sentence
 
 BERT_ARGS="--num-layers 24 \
            --hidden-size 1024 \
