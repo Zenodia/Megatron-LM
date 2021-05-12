@@ -203,6 +203,7 @@ def generate_samples_interactive(model, print_frequency=24):
                and mpu.get_tensor_model_parallel_rank() == 0:
                 os.system('clear')
                 raw_text = input("\nContext prompt (stop to exit) >>> ")
+                #raw_text = '我们买了[EOD]'
                 while not raw_text:
                     print('Prompt should not be empty!')
                     raw_text = input("\nContext prompt (stop to exit) >>> ")

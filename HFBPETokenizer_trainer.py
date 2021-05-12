@@ -18,11 +18,6 @@ if __name__ == '__main__':
     vocab_size=int(args.vocab_size) # do NOT generate 16000, empty merges.txt , preprocess_data.py results in error since merges.txt is empty)
     print("vocab_size for this training is : ", str(vocab_size))
     trainer = BpeTrainer(vocab_size=vocab_size, show_progress=True,special_tokens = ['[CLS]','[BOS]','[EOS]','[SEP]','[PAD]','[MASK]','[UNK]','[EOD]'])
-    # since tokenizers >=10.0 , it is now using tokenizer.train([list of txt files], trainer)
-    #infiles=[os.path.join(args.infiles_path,f) for f in os.listdir(args.infiles_path) if f.endswith('.txt')]    
-    #print("list of input txt  files for training :", infiles)
-    #if len(infiles)>1:
-    #   tokenizer.train( infiles,trainer )
     infile=args.infile
     print("infile is :", infile)
     tokenizer.train( [infile],trainer )    

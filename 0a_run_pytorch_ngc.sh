@@ -1,1 +1,1 @@
-sudo docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=$1 -p $2:$2  -it --rm --ulimit memlock=-1 --ulimit stack=67108864  -v $(pwd):/workspace nvcr.io/nvidia/pytorch:20.11-py3  
+sudo docker run --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES=$1 -p $2:$2  -it --rm --ulimit memlock=-1 --ulimit stack=67108864  -v $(pwd):/workspace -v /mnt/ZenoHD/dataset/CC100_sv:/workspace/SVdata nvcr.io/nvidia/pytorch:21.03-py3  #nvcr.io/nvidia/pytorch:20.11-py3  

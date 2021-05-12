@@ -1,5 +1,5 @@
 INPUT_JSON_FILE=/workspace/cn/sample_1mil.json
-OUTPUT_PATH=/workspace/dataset/demo_bert
+OUTPUT_PATH=/workspace/dataset/bk_bert_
 VOCAB_FILE=/workspace/cn/bpe/32k/vocab.json
 MERGE_FILE=/workspace/cn/bpe/32k/merges.txt
 NUM_CPUS=32

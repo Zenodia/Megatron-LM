@@ -63,8 +63,11 @@ def build_debug(file1,file2, tokenizer_type='bpe'):
     if tokenizer_type=='wp':
         tokenizer = _BertWordPieceTokenizer(vocab_file=file1,
                                             lower_case=False)
-    else:
+    elif tokenizer_type=='bpe':
         tokenizer = _HFBPETokenizer(file1, file2)
+    else:
+        print("loading gpt2 tokenizer")
+        tokenizer = _GPT2BPETokenizer(file1, file2)
     return tokenizer
 
 def _vocab_size_with_padding(orig_vocab_size, args):
