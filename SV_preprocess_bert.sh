@@ -1,8 +1,9 @@
 INPUT_JSON_FILE=/workspace/SVdata/cleaned/SVcleaned.json
-OUTPUT_PATH=/workspace/SVdata/preprocessed/SV32k_Bert_
+OUTPUT_PATH=/workspace/SVdata/preprocessed/SV_WordPiece32k_Bert
 VOCAB_FILE=/workspace/SVdata/bpe/32k/vocab.json
 MERGE_FILE=/workspace/SVdata/bpe/32k/merges.txt
 NUM_CPUS=1
+
 
 python tools/preprocessSVdata.py \
        --input $INPUT_JSON_FILE \

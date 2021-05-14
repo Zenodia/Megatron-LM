@@ -1,12 +1,12 @@
 #!/bin/bash 
 EXP_NAME="Svenska_32k_GPT_megatron"
  # ngc args
-INSTANCE="dgx1v.32g.8.norm"
+INSTANCE="dgx1v.32g.4.norm"
 IMAGE="nvcr.io/nvidia/pytorch:20.11-py3"
 # wandb args
 PROJECT_NAME=Svenska_32k_GPT_megatron
 # megatron-lm args
-GPUS_PER_NODE=8
+GPUS_PER_NODE=4
 # Change for multinode config
 MASTER_ADDR=localhost
 MASTER_PORT=6000
@@ -25,10 +25,11 @@ CMD="python -m torch.distributed.launch ${DISTRIBUTED_ARGS} \
         --DDP-impl torch \
         --num-layers 24 \
         --hidden-size 1024 \
-        --num-attention-heads 16 \
-        --batch-size 1 \
+        --num-attention-heads 16 \    
         --seq-length 1024 \
         --max-position-embeddings 1024 \
+        --micro-batch-size 32 \
+        --global-batch-size 32 \
         --train-iters 5000000 \
         --save ${CHECKPOINT_PATH} \
         --load ${CHECKPOINT_PATH} \
@@ -37,18 +38,14 @@ CMD="python -m torch.distributed.launch ${DISTRIBUTED_ARGS} \
         --merge-file ${MERGE_FILE} \
         --distributed-backend nccl \
         --lr 0.00015 \
-        --lr-decay-style cosine \
-        --min-lr 1.0e-5 \
+        --train-iters 500000 \
         --lr-decay-iters 320000 \
-        --weight-decay 1e-2 \
-        --clip-grad 1.0 \
-        --warmup .01 \
-        --log-interval 1 \
-        --save-interval 100000 \
-        --eval-interval 100000 \
-        --eval-iters 10 \
+        --lr-decay-style cosine \
+        --vocab-file $VOCAB_FILE \
+        --merge-file $MERGE_FILE \
+        --lr-warmup-fraction .01 \
         --fp16 \
-        --tensorboard-dir /result "
+        --tensorboard-dir /result"
 echo "${CMD}"
 ngc batch run \
 --name ${EXP_NAME} --preempt RUNONCE --ace nv-us-west-2 \
@@ -59,10 +56,9 @@ git clone https://github.com/Zenodia/Megatron-LM.git && \
 cd Megatron-LM/ && \
 git checkout svenska && \
 bash 0b_pip_install.sh && \
-python setup.py install && \
 ${CMD}" \
 --result /result \
 --image ${IMAGE} \
 --org nvidian \
---datasetid :/mnt/dataset \
+--datasetid 79057:/mnt/dataset \
 --port 6006
