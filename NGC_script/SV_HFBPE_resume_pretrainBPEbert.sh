@@ -1,13 +1,13 @@
 #!/bin/bash 
 ####### not working need tweaking
-EXP_NAME="MegatronWP32kBert_Svenska"
+EXP_NAME="MegatronBPE32kBert_Svenska"
  # ngc args
-INSTANCE="dgx1v.32g.2.norm"
+INSTANCE="dgx1v.32g.8.norm"
 IMAGE="nvcr.io/nvidia/pytorch:20.11-py3"
 # wandb args
-PROJECT_NAME=MegatronWP32kBert_Svenska
+PROJECT_NAME=MegatronBPE32kBert_Svenska
 # megatron-lm args
-GPUS_PER_NODE=2
+GPUS_PER_NODE=8
 # Change for multinode config
 MASTER_ADDR=localhost
 MASTER_PORT=6000
@@ -16,8 +16,8 @@ NODE_RANK=0
 WORLD_SIZE=$((${GPUS_PER_NODE}*${NNODES}))
 DATA_PATH=/raid/SV32k_Bert__text_sentence
 CHECKPOINT_PATH=/result
-VOCAB_FILE=/mnt/dataset/wp/SV_HFWordPiece_vocab32k-vocab.txt
-
+VOCAB_FILE=/mnt/dataset/bpe/32k/vocab.json
+MERGE_FILE=/mnt/dataset/bpe/32k/merges.txt
 MP_SIZE=1
 DISTRIBUTED_ARGS="--nproc_per_node ${GPUS_PER_NODE} --nnodes ${NNODES} --node_rank ${NODE_RANK} --master_addr ${MASTER_ADDR} --master_port ${MASTER_PORT}"
 
@@ -58,6 +58,8 @@ ngc batch run \
 cp -r /mnt/dataset/bpe /raid && \
 cp /mnt/dataset/SV32k_Bert__text_sentence.bin /raid/ && \
 cp /mnt/dataset/SV32k_Bert__text_sentence.idx /raid/ && \
+cp -r /mount/ckpt/iter_2000000 /result && \
+cp /mount/ckpt/latest_checkpointed_iteration.txt /result && \
 ls /raid && \
 git clone https://github.com/Zenodia/Megatron-LM.git && \
 cd Megatron-LM/ && \
@@ -68,4 +70,5 @@ ${CMD}" \
 --image ${IMAGE} \
 --org nvidian \
 --datasetid 79057:/mnt/dataset \
+--datasetid 79606:/mount/ckpt \
 --port 6006

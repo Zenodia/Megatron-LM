@@ -2,12 +2,12 @@
 ####### not working need tweaking
 EXP_NAME="MegatronBPE32kBert_Svenska"
  # ngc args
-INSTANCE="dgx1v.32g.2.norm"
+INSTANCE="dgx1v.32g.8.norm"
 IMAGE="nvcr.io/nvidia/pytorch:20.11-py3"
 # wandb args
 PROJECT_NAME=MegatronBPE32kBert_Svenska
 # megatron-lm args
-GPUS_PER_NODE=2
+GPUS_PER_NODE=8
 # Change for multinode config
 MASTER_ADDR=localhost
 MASTER_PORT=6000

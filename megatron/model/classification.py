@@ -70,9 +70,10 @@ class ClassificationBase(MegatronModule):
             _, pooled_output = lm_output
             classification_output = self.classification_dropout(pooled_output)
             classification_logits = self.classification_head(classification_output)
-
+            #print('base: classification_logits ', classification_logits.size())
             # Reshape back to separate choices.
             classification_logits = classification_logits.view(-1, self.num_classes)
+            #print('base: classification_logits reshaped ', classification_logits.size())
 
             return classification_logits
         return lm_output

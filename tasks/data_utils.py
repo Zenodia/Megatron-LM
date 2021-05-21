@@ -116,3 +116,52 @@ def build_tokens_types_paddings_from_ids(text_a_ids, text_b_ids, max_seq_length,
         paddings.extend([0] * padding_length)
 
     return ids, types, paddings
+#### adding below for classificaiton only tasks, such as NER or Sentiment analysis
+def build_classification_tokens_types_paddings_from_text(text, tokenizer, max_seq_length):
+    """Build classification token types and paddings, trim if needed, and pad if needed."""
+    text_ids = tokenizer.tokenize(text)    
+
+    return build_classification_tokens_types_paddings_from_ids(text_ids, max_seq_length, tokenizer.cls,
+                                                tokenizer.sep, tokenizer.pad)
+
+def build_classification_tokens_types_paddings_from_ids(text_ids, max_seq_length,
+                                         cls_id, sep_id, pad_id):
+    """Build token types and paddings, trim if needed, and pad if needed."""
+
+    ids = []
+    types = []
+    paddings = []
+
+    # [CLS].
+    ids.append(cls_id)
+    types.append(0)
+    paddings.append(1)
+
+    # A.
+    len_text_a = len(text_ids)
+    ids.extend(text_ids)
+    types.extend([0] * len_text_a)
+    paddings.extend([1] * len_text_a)
+
+    # [SEP].
+    ids.append(sep_id)
+    types.append(0)
+    paddings.append(1)
+    
+    # Cap the size.
+    trimmed = False
+    if len(ids) >= max_seq_length:
+        max_seq_length_m1 = max_seq_length - 1
+        ids = ids[0:max_seq_length_m1]
+        types = types[0:max_seq_length_m1]
+        paddings = paddings[0:max_seq_length_m1]
+        trimmed = True
+   
+    # Padding.
+    padding_length = max_seq_length - len(ids)
+    if padding_length > 0:
+        ids.extend([pad_id] * padding_length)
+        types.extend([pad_id] * padding_length)
+        paddings.extend([0] * padding_length)
+
+    return ids, types, paddings

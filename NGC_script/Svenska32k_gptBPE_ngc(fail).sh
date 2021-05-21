@@ -1,10 +1,11 @@
 #!/bin/bash 
-EXP_NAME="Svenska_32k_GPT_megatron"
+####### not working need tweaking
+EXP_NAME="MegatronGPT_w_HFBPE32k_Svenska"
  # ngc args
 INSTANCE="dgx1v.32g.4.norm"
 IMAGE="nvcr.io/nvidia/pytorch:20.11-py3"
 # wandb args
-PROJECT_NAME=Svenska_32k_GPT_megatron
+PROJECT_NAME=MegatronGPT_w_HFBPE32k_Svenska
 # megatron-lm args
 GPUS_PER_NODE=4
 # Change for multinode config
@@ -13,45 +14,52 @@ MASTER_PORT=6000
 NNODES=1
 NODE_RANK=0
 WORLD_SIZE=$((${GPUS_PER_NODE}*${NNODES}))
-DATA_PATH=/raid/dataset/SV32k_GPT__text_sentence
+DATA_PATH=/raid/SV32k_GPT__text_sentence
 CHECKPOINT_PATH=/result
 VOCAB_FILE=/mnt/dataset/bpe/32k/vocab.json
 MERGE_FILE=/mnt/dataset/bpe/32k/merges.txt
+MP_SIZE=1
 DISTRIBUTED_ARGS="--nproc_per_node ${GPUS_PER_NODE} --nnodes ${NNODES} --node_rank ${NODE_RANK} --master_addr ${MASTER_ADDR} --master_port ${MASTER_PORT}"
 
 CMD="python -m torch.distributed.launch ${DISTRIBUTED_ARGS} \
     pretrain_gpt.py \
-        --model-parallel-size 1 \
-        --DDP-impl torch \
+        --pipeline-model-parallel-size 1 \
         --num-layers 24 \
         --hidden-size 1024 \
-        --num-attention-heads 16 \    
-        --seq-length 1024 \
-        --max-position-embeddings 1024 \
-        --micro-batch-size 32 \
-        --global-batch-size 32 \
-        --train-iters 5000000 \
+        --num-attention-heads 16 \
+        --micro-batch-size 16 \
+        --seq-length 256 \
+        --max-position-embeddings 256 \
         --save ${CHECKPOINT_PATH} \
         --load ${CHECKPOINT_PATH} \
         --data-path ${DATA_PATH} \
         --vocab-file ${VOCAB_FILE} \
         --merge-file ${MERGE_FILE} \
+        --data-impl mmap \
+        --split 949,50,1 \
         --distributed-backend nccl \
+        --DDP-impl torch \
         --lr 0.00015 \
-        --train-iters 500000 \
         --lr-decay-iters 320000 \
         --lr-decay-style cosine \
-        --vocab-file $VOCAB_FILE \
-        --merge-file $MERGE_FILE \
-        --lr-warmup-fraction .01 \
+        --train-iters 5000000 \
+        --min-lr 0.00001 \
+        --lr-warmup-fraction 0.01 \
+        --log-interval 1000 \
+        --save-interval 100000 \
+        --eval-interval 100000 \
+        --eval-iters 1000 \
         --fp16 \
-        --tensorboard-dir /result"
+        --tensorboard-dir /result "
 echo "${CMD}"
 ngc batch run \
 --name ${EXP_NAME} --preempt RUNONCE --ace nv-us-west-2 \
 --instance ${INSTANCE} \
 --commandline "nvidia-smi && \
-cp -r /mnt/dataset /raid && \
+cp -r /mnt/dataset/bpe /raid && \
+cp /mnt/dataset/SV32k_GPT__text_sentence.bin /raid/ && \
+cp /mnt/dataset/SV32k_GPT__text_sentence.idx /raid/ && \
+ls /raid && \
 git clone https://github.com/Zenodia/Megatron-LM.git && \
 cd Megatron-LM/ && \
 git checkout svenska && \

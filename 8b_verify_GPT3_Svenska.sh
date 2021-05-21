@@ -6,8 +6,8 @@ DATA_PATH=./SVdata/preprocessed/SV32k_GPT__text_sentence
 GPT_ARGS="--num-layers 24 \
           --hidden-size 1024 \
           --num-attention-heads 16 \
-          --seq-length 1024 \
-          --max-position-embeddings 1024 \
+          --seq-length 256 \
+          --max-position-embeddings 256 \
           --micro-batch-size 32 \
           --global-batch-size 32 \
           --lr 0.00015 \
