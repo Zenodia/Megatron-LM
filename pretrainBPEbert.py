@@ -54,7 +54,14 @@ def model_provider():
             parallel_output=True)
 
     return model
-
+def skip_bad_batch(data_iterator,flag):
+    try:
+        data = next(data_iterator)
+        return flag , data
+    except e :
+        print("skip bad batch with error  ", e )
+        flag = False
+        return flag , None
 
 def get_batch(data_iterator):
     """Build the batch."""
@@ -64,13 +71,11 @@ def get_batch(data_iterator):
     datatype = torch.int64
 
     # Broadcast data.
-    if data_iterator is not None:
-        try:
-            data = next(data_iterator)
-        except StopIteration:
-            print("bad batch , skipping ...")
-            pass
-            data = next(data_iterator)
+    if data_iterator is not None:   
+        flag=False
+        while not flag :
+            flag, data = skip_bad_batch(data_iterator,flag) 
+        
     else:
         data = None
     data_b = mpu.broadcast_data(keys, data, datatype)
