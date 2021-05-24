@@ -66,6 +66,9 @@ def glue_classification(num_classes, Dataset,
             elif args.tokenizer_type=='HFBPETokenizer' and args.task=='SVSentiment' :
                 print("============== using custom HuggingFace BPE Tokenizer:{} on task:{} ==============".format(args.tokenizer_type,args.task))
                 model = Classification(num_classes=num_classes, num_tokentypes=5)
+            elif args.tokenizer_type=='HFBPETokenizer' and args.task=='SV_XNLI' :
+                print("============== using custom HuggingFace BPE Tokenizer:{} on task:{} ==============".format(args.tokenizer_type,args.task))
+                model = Classification(num_classes=num_classes, num_tokentypes=5)
             else:
                 model = Classification(num_classes=num_classes, num_tokentypes=2)
 
@@ -92,7 +95,12 @@ def main():
     if args.task == 'SVSentiment':
         num_classes = 5
         from tasks.svglue.svsent import SVSentimentDataset as Dataset
-
+        def name_from_datapath(datapath):
+            return datapath
+        
+    elif  args.task == 'SV_XNLI':
+        num_classes = 3
+        from tasks.svglue.svxnli import SV_XNLIDataset as Dataset
         def name_from_datapath(datapath):
             return datapath  
     else:

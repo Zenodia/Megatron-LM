@@ -4,13 +4,13 @@
 #        args = get_args()
 #        print_rank_0('building classification model for {} ...'.format(args.task))
 #        return Classification(num_classes=num_classes, num_tokentypes= 2 5) change num_tokentypes from 2--> 5 
-TRAIN_DATA="/workspace/SVdata/SuperLimSE/processed/SV_sentiment_train.tsv"
-VALID_DATA="/workspace/SVdata/SuperLimSE/processed/SV_sentiment_test.tsv /workspace/SVdata/SuperLimSE/processed/SV_sentiment_dev.tsv"
+TRAIN_DATA="/workspace/SVdata/SuperLimSE/SV_xnli_train.tsv"
+VALID_DATA="/workspace/SVdata/SuperLimSE/SV_xnli_test.tsv /workspace/SVdata/SuperLimSE/SV_xnli_dev.tsv"
 CHECKPOINT_PATH='/workspace/SVdata/sv_ckpt/downstream_ckpt/'
 VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
 MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
 
-PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/1998220/'
+PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/'
 
 COMMON_TASK_ARGS="--num-layers 24 \
                   --hidden-size 1024 \
@@ -33,11 +33,11 @@ COMMON_TASK_ARGS_EXT="--train-data $TRAIN_DATA \
                       --weight-decay 1.0e-2"
 
 python tasks/main.py \
-       --task SVSentiment \
+       --task SV_XNLI \
        $COMMON_TASK_ARGS \
        $COMMON_TASK_ARGS_EXT \
        --tokenizer-type HFBPETokenizer \
-       --epochs 1 \
-       --micro-batch-size 512 \
+       --epochs 3 \
+       --micro-batch-size 256 \
        --lr 5.0e-5 \
        --lr-warmup-fraction  0.065

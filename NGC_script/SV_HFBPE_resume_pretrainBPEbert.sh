@@ -2,12 +2,12 @@
 ####### not working need tweaking
 EXP_NAME="MegatronBPE32kBert_Svenska"
  # ngc args
-INSTANCE="dgx1v.32g.8.norm"
+INSTANCE="dgx1v.32g.4.norm"
 IMAGE="nvcr.io/nvidia/pytorch:20.11-py3"
 # wandb args
 PROJECT_NAME=MegatronBPE32kBert_Svenska
 # megatron-lm args
-GPUS_PER_NODE=8
+GPUS_PER_NODE=4
 # Change for multinode config
 MASTER_ADDR=localhost
 MASTER_PORT=6000
@@ -39,9 +39,10 @@ CMD="python -m torch.distributed.launch ${DISTRIBUTED_ARGS} \
         --split 949,50,1 \
         --distributed-backend nccl \
         --DDP-impl torch \
+        --override-lr-scheduler \
         --lr 0.0001 \
         --lr-decay-iters 990000 \
-        --train-iters 2000000 \
+        --train-iters 4000000 \
         --min-lr 0.00001 \
         --lr-warmup-fraction 0.01 \
         --log-interval 100 \
