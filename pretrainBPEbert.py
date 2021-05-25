@@ -58,8 +58,8 @@ def skip_bad_batch(data_iterator,flag):
     try:
         data = next(data_iterator)
         return flag , data
-    except e :
-        print("skip bad batch with error  ", e )
+    except StopIteration :
+        print("skip bad batch with error  " )
         flag = False
         return flag , None
 
