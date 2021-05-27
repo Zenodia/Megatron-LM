@@ -20,37 +20,40 @@ VOCAB_FILE=/mnt/dataset/bpe/32k/vocab.json
 MERGE_FILE=/mnt/dataset/bpe/32k/merges.txt
 MP_SIZE=1
 DISTRIBUTED_ARGS="--nproc_per_node ${GPUS_PER_NODE} --nnodes ${NNODES} --node_rank ${NODE_RANK} --master_addr ${MASTER_ADDR} --master_port ${MASTER_PORT}"
+BERT_ARGS="--num-layers 24 \
+           --hidden-size 1024 \
+           --num-attention-heads 16 \
+           --seq-length 512 \
+           --max-position-embeddings 512 \
+           --lr 0.0001 \
+           --train-iters 8000000 \
+           --min-lr 0.00001 \
+           --lr-decay-iters 990000 \
+           --lr-warmup-fraction 0.01 \
+           --micro-batch-size 8 \
+           --override-lr-scheduler \
+           --vocab-file ${VOCAB_FILE} \
+           --merge-file ${MERGE_FILE}\
+           --split 949,50,1 \
+           --fp16"
 
+OUTPUT_ARGS="--log-interval 10 \
+             --save-interval 500 \
+             --eval-interval 100 \
+             --eval-iters 10 \
+             --checkpoint-activations"
+
+python pretrainBPEbert.py \
+       
 CMD="python -m torch.distributed.launch ${DISTRIBUTED_ARGS} \
     pretrainBPEbert.py \
-        --pipeline-model-parallel-size 1 \
-        --num-layers 24 \
-        --hidden-size 1024 \
-        --num-attention-heads 16 \
-        --micro-batch-size 4 \
-        --seq-length 512 \
-        --max-position-embeddings 512 \
-        --save ${CHECKPOINT_PATH} \
-        --load ${CHECKPOINT_PATH} \
-        --data-path ${DATA_PATH} \
-        --vocab-file ${VOCAB_FILE} \
-        --merge-file ${MERGE_FILE} \
-        --data-impl mmap \
-        --split 949,50,1 \
-        --distributed-backend nccl \
-        --DDP-impl torch \
-        --override-lr-scheduler \
-        --lr 0.0001 \
-        --lr-decay-iters 990000 \
-        --train-iters 4000000 \
-        --min-lr 0.00001 \
-        --lr-warmup-fraction 0.01 \
-        --log-interval 100 \
-        --save-interval 100000 \
-        --eval-interval 100000 \
-        --eval-iters 1000 \
-        --fp16 \
-        --tensorboard-dir /result "
+        --tensor-model-parallel-size 1 \
+       ${BERT_ARGS} \
+       ${OUTPUT_ARGS} \
+       --save ${CHECKPOINT_PATH} \
+       --load ${CHECKPOINT_PATH} \
+       --data-path ${DATA_PATH}
+       --tensorboard-dir /result "
 echo "${CMD}"
 ngc batch run \
 --name ${EXP_NAME} --preempt RUNONCE --ace nv-us-west-2 \
@@ -59,7 +62,7 @@ ngc batch run \
 cp -r /mnt/dataset/bpe /raid && \
 cp /mnt/dataset/SV32k_Bert__text_sentence.bin /raid/ && \
 cp /mnt/dataset/SV32k_Bert__text_sentence.idx /raid/ && \
-cp -r /mount/ckpt/iter_2000000 /result && \
+cp -r /mount/ckpt/iter_2200000 /result && \
 cp /mount/ckpt/latest_checkpointed_iteration.txt /result && \
 ls /raid && \
 git clone https://github.com/Zenodia/Megatron-LM.git && \
@@ -71,5 +74,5 @@ ${CMD}" \
 --image ${IMAGE} \
 --org nvidian \
 --datasetid 79057:/mnt/dataset \
---datasetid 79606:/mount/ckpt \
+--datasetid 79767:/mount/ckpt \
 --port 6006

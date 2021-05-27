@@ -1,5 +1,5 @@
 INPUT_JSON_FILE=/workspace/SVdata/cleaned/SVcleaned.json
-OUTPUT_PATH=/workspace/SVdata/preprocessed/SV32k_GPT_
+OUTPUT_PATH=/workspace/SVdata/test/SV32k_GPT_
 VOCAB_FILE=/workspace/SVdata/bpe/32k/vocab.json
 MERGE_FILE=/workspace/SVdata/bpe/32k/merges.txt
 NUM_CPUS=1

@@ -20,7 +20,9 @@ import torch
 
 from megatron import get_args
 from megatron import mpu
-
+import numpy as np
+def worker_init_fn(worker_id):                                                          
+    np.random.seed(np.random.get_state()[1][0] + worker_id)
 
 def build_pretraining_data_loader(dataset, consumed_samples):
     """Buld dataloader given an input dataset."""
@@ -40,7 +42,8 @@ def build_pretraining_data_loader(dataset, consumed_samples):
     # Torch dataloader.
     return torch.utils.data.DataLoader(dataset,
                                        batch_sampler=batch_sampler,
-                                       num_workers=args.num_workers,
+                                       num_workers=args.num_workers, 
+                                       worker_init_fn=worker_init_fn,
                                        pin_memory=True)
 
 
@@ -59,10 +62,10 @@ class MegatronPretrainingSampler:
 
         # Sanity checks.
         assert self.total_samples > 0, \
-            'no sample to consume: {}'.format(self.total_samples)
+            'no sample to consume: {}'.format(self.total_samples)        
         assert self.consumed_samples < self.total_samples, \
             'no samples left to consume: {}, {}'.format(self.consumed_samples,
-                                                        self.total_samples)
+                                                        self.total_samples)        
         assert self.micro_batch_size > 0
         assert data_parallel_size > 0
         assert self.data_parallel_rank < data_parallel_size, \

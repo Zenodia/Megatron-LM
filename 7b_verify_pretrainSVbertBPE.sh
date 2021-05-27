@@ -6,7 +6,7 @@
 # line 52 change num_tokentypes 2-->5
 # line 155 change tokenizer_type BertWordPieceLowerCase--> HFBPETokenizer
 
-CHECKPOINT_PATH=./zh_ckpt
+CHECKPOINT_PATH=./zh_ckpt/
 VOCAB_FILE=./SVdata/bpe/32k/vocab.json
 MERGE_FILE=./SVdata/bpe/32k/merges.txt
 
@@ -19,11 +19,12 @@ BERT_ARGS="--num-layers 24 \
            --seq-length 512 \
            --max-position-embeddings 512 \
            --lr 0.0001 \
-           --train-iters 1000000 \
+           --train-iters 8000000 \
            --min-lr 0.00001 \
            --lr-decay-iters 990000 \
            --lr-warmup-fraction 0.01 \
            --micro-batch-size 8 \
+           --override-lr-scheduler \
            --vocab-file $VOCAB_FILE \
            --merge-file $MERGE_FILE\
            --split 949,50,1 \

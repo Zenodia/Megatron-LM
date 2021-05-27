@@ -26,7 +26,7 @@ from megatron.data.dataset_utils import build_train_valid_test_datasets
 from megatron.model import BertModel, BertModelFirstStage, BertModelIntermediateStage, BertModelLastStage
 from megatron.training import pretrain
 from megatron.utils import average_losses_across_data_parallel_group
-
+import numpy as np
 
 def model_provider():
     """Build the model."""
@@ -60,8 +60,15 @@ def skip_bad_batch(data_iterator,flag):
         return flag , data
     except StopIteration :
         print("skip bad batch with error  " )
+        np.random.seed()
         flag = False
         return flag , None
+def cycle(data_iterator):
+    while True:
+        flag=True
+        while not flag :
+            flag , data=skip_bad_batch(data_iterator,flag)
+    yield data
 
 def get_batch(data_iterator):
     """Build the batch."""
@@ -72,10 +79,7 @@ def get_batch(data_iterator):
 
     # Broadcast data.
     if data_iterator is not None:   
-        flag=False
-        while not flag :
-            flag, data = skip_bad_batch(data_iterator,flag) 
-        
+        data = next(data_iterator)                
     else:
         data = None
     data_b = mpu.broadcast_data(keys, data, datatype)
