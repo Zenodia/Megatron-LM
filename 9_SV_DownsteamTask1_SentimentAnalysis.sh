@@ -11,6 +11,7 @@ VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
 MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
 
 PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/'
+#PRETRAINED_CHECKPOINT='/workspace/zh_ckpt/'
 
 COMMON_TASK_ARGS="--num-layers 24 \
                   --hidden-size 1024 \

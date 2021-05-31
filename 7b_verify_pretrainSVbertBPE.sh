@@ -36,6 +36,7 @@ OUTPUT_ARGS="--log-interval 10 \
              --eval-iters 10 \
              --checkpoint-activations"
 
+
 python pretrainBPEbert.py \
        --tensor-model-parallel-size 1 \
        $BERT_ARGS \

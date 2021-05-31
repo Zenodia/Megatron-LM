@@ -37,14 +37,12 @@ BERT_ARGS="--num-layers 24 \
            --split 949,50,1 \
            --fp16"
 
-OUTPUT_ARGS="--log-interval 10 \
-             --save-interval 500 \
-             --eval-interval 100 \
-             --eval-iters 10 \
+OUTPUT_ARGS="--log-interval 10000 \
+             --save-interval 10000 \
+             --eval-interval 10000 \
+             --eval-iters 100 \
              --checkpoint-activations"
-
-python pretrainBPEbert.py \
-       
+     
 CMD="python -m torch.distributed.launch ${DISTRIBUTED_ARGS} \
     pretrainBPEbert.py \
         --tensor-model-parallel-size 1 \
@@ -62,7 +60,7 @@ ngc batch run \
 cp -r /mnt/dataset/bpe /raid && \
 cp /mnt/dataset/SV32k_Bert__text_sentence.bin /raid/ && \
 cp /mnt/dataset/SV32k_Bert__text_sentence.idx /raid/ && \
-cp -r /mount/ckpt/iter_2200000 /result && \
+cp -r /mount/ckpt/iter_2211500 /result && \
 cp /mount/ckpt/latest_checkpointed_iteration.txt /result && \
 ls /raid && \
 git clone https://github.com/Zenodia/Megatron-LM.git && \
@@ -74,5 +72,5 @@ ${CMD}" \
 --image ${IMAGE} \
 --org nvidian \
 --datasetid 79057:/mnt/dataset \
---datasetid 79767:/mount/ckpt \
+--datasetid 79950:/mount/ckpt \
 --port 6006

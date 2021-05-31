@@ -78,8 +78,13 @@ def get_batch(data_iterator):
     datatype = torch.int64
 
     # Broadcast data.
-    if data_iterator is not None:   
-        data = next(data_iterator)                
+    if data_iterator is not None:
+        try :
+            data = next(data_iterator) 
+        except StopIteration:
+            print("skip bad batch with error  " )
+            np.random.seed()
+            data = next(data_iterator)
     else:
         data = None
     data_b = mpu.broadcast_data(keys, data, datatype)

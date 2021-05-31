@@ -17,15 +17,15 @@
 
 import os
 import time
-
 import torch
-
 from megatron import get_args
 from megatron import print_rank_last, is_last_rank
 from megatron import mpu
 from megatron.training import communicate
 from tasks.finetune_utils import build_data_loader
 from tasks.finetune_utils import process_batch
+import json
+import os,sys
 
 
 def accuracy_func_provider(single_dataset_provider):
@@ -35,17 +35,23 @@ def accuracy_func_provider(single_dataset_provider):
     # Build dataloaders.
     datapaths = args.valid_data
     dataloaders = []
+    f_outs=[]
     for datapath in datapaths:
         dataset = single_dataset_provider(datapath)
         dataloader = build_data_loader(
             dataset, args.micro_batch_size, num_workers=args.num_workers,
             drop_last=(mpu.get_data_parallel_world_size() > 1))
-        dataloaders.append((dataset.dataset_name, dataloader))
-
-    def metrics_func(model, epoch, output_predictions=False):
+        dataloaders.append((dataset.dataset_name, dataloader))  
+        
+        
+    def metrics_func(model, epoch, output_predictions=True):
+        if output_predictions :
+            f_test_out=open('/workspace/SVdata/sv_ckpt/downstream_ckpt/test_predict.csv','a')
+            f_dev_out=open('/workspace/SVdata/sv_ckpt/downstream_ckpt/dev_predict.csv','a')
         print_rank_last('calculating metrics ...')
         correct = 0
         total = 0
+        
         if output_predictions:
             assert mpu.get_data_parallel_world_size() == 1
             named_predictions = []
@@ -58,6 +64,27 @@ def accuracy_func_provider(single_dataset_provider):
             else:
                 correct_ans, total_count, predictions = output
                 named_predictions.append((name, predictions))
+                
+                if 'SV_sentiment_test' in name and output_predictions:
+                    print("processing test dataset :", name)
+                    d={'name':name,
+                        'id':predictions[2],
+                      'softmax':predictions[0],
+                      'label':predictions[1]}                     
+                    data = json.dumps(d,ensure_ascii=False)
+                    f_test_out.write(data)
+                    f_test_out.write('\n')
+                elif 'SV_sentiment_dev' in name and output_predictions:
+                    print("processing dev dataset :", name)
+                    d={'name':name,
+                        'id':predictions[2],
+                      'softmax':predictions[0],
+                      'label':predictions[1]}                     
+                    data = json.dumps(d,ensure_ascii=False)
+                    f_dev_out.write(data)
+                    f_dev_out.write('\n')
+                else:
+                    pass                    
                 names += '_' + name
             correct += correct_ans
             total += total_count
@@ -65,11 +92,17 @@ def accuracy_func_provider(single_dataset_provider):
             percent = float(correct) * 100.0 / float(total)
             print(' >> |epoch: {}| overall: correct / total = {} / {} = '
                   '{:.4f} %'.format(epoch, correct, total, percent))
-
+            if 'SV_sentiment_test' in name:
+                f_test_out.close()
+            elif 'SV_sentiment_dev' in name:
+                f_dev_out.close()   
+            else:pass
         if output_predictions and is_last_rank():
             assert args.load is not None
-            filename = os.path.join(args.load, names + '.pt')
+            filename = os.path.join(args.save, names + '.pt')
             torch.save(named_predictions, filename)
+            
+                    
 
     return metrics_func
 
@@ -128,7 +161,7 @@ def calculate_correct_answers(name, model, dataloader,
                 # Add output predictions.
                 if output_predictions:
                     softmaxes.extend(torch.nn.Softmax(dim=-1)(
-                        logits.float()).data.cpu().numpy().tolist())
+                        logits.float()).data.cpu().numpy().tolist())                    
                     labels.extend(labels_.data.cpu().numpy().tolist())
                     ids.extend(batch['uid'].cpu().numpy().tolist())
                 # Compute the correct answers.
