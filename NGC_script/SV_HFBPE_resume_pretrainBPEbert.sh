@@ -14,10 +14,10 @@ MASTER_PORT=6000
 NNODES=1
 NODE_RANK=0
 WORLD_SIZE=$((${GPUS_PER_NODE}*${NNODES}))
-DATA_PATH=/raid/SV32k_Bert__text_sentence
+DATA_PATH=/raid/SVsprakbank_HFBPE32k_Bert_text_sentence
 CHECKPOINT_PATH=/result
-VOCAB_FILE=/mnt/dataset/bpe/32k/vocab.json
-MERGE_FILE=/mnt/dataset/bpe/32k/merges.txt
+VOCAB_FILE=/mnt/dataset/bpe_updated/32k/vocab.json
+MERGE_FILE=/mnt/dataset/bpe_updated/32k/merges.txt
 MP_SIZE=1
 DISTRIBUTED_ARGS="--nproc_per_node ${GPUS_PER_NODE} --nnodes ${NNODES} --node_rank ${NODE_RANK} --master_addr ${MASTER_ADDR} --master_port ${MASTER_PORT}"
 BERT_ARGS="--num-layers 24 \
@@ -28,19 +28,19 @@ BERT_ARGS="--num-layers 24 \
            --lr 0.0001 \
            --train-iters 8000000 \
            --min-lr 0.00001 \
-           --lr-decay-iters 990000 \
+           --lr-decay-iters 900000 \
            --lr-warmup-fraction 0.01 \
            --micro-batch-size 8 \
            --override-lr-scheduler \
-           --vocab-file ${VOCAB_FILE} \
-           --merge-file ${MERGE_FILE}\
+           --vocab-file $VOCAB_FILE \
+           --merge-file $MERGE_FILE\
            --split 949,50,1 \
            --fp16"
 
-OUTPUT_ARGS="--log-interval 10000 \
-             --save-interval 10000 \
-             --eval-interval 10000 \
-             --eval-iters 100 \
+OUTPUT_ARGS="--log-interval 1000 \
+             --save-interval 20000 \
+             --eval-interval 20000 \
+             --eval-iters 10000 \
              --checkpoint-activations"
      
 CMD="python -m torch.distributed.launch ${DISTRIBUTED_ARGS} \
@@ -57,11 +57,11 @@ ngc batch run \
 --name ${EXP_NAME} --preempt RUNONCE --ace nv-us-west-2 \
 --instance ${INSTANCE} \
 --commandline "nvidia-smi && \
-cp -r /mnt/dataset/bpe /raid && \
-cp /mnt/dataset/SV32k_Bert__text_sentence.bin /raid/ && \
-cp /mnt/dataset/SV32k_Bert__text_sentence.idx /raid/ && \
-cp -r /mount/ckpt/iter_2211500 /result && \
-cp /mount/ckpt/latest_checkpointed_iteration.txt /result && \
+cp -r /mnt/dataset/bpe_updated /raid && \
+cp /mnt/dataset/SVsprakbank_HFBPE32k_Bert_text_sentence.bin /raid/ && \
+cp /mnt/dataset/SVsprakbank_HFBPE32k_Bert_text_sentence.idx /raid/ && \
+cp -r /mount/ckpt/iter_2000000 /result && \
+cp /mnt/dataset/latest_checkpointed_iteration.txt /result && \
 ls /raid && \
 git clone https://github.com/Zenodia/Megatron-LM.git && \
 cd Megatron-LM/ && \
@@ -71,6 +71,6 @@ ${CMD}" \
 --result /result \
 --image ${IMAGE} \
 --org nvidian \
---datasetid 79057:/mnt/dataset \
---datasetid 79950:/mount/ckpt \
+--datasetid 80297:/mnt/dataset \
+--datasetid 79606:/mount/ckpt \
 --port 6006

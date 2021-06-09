@@ -7,19 +7,18 @@
 TRAIN_DATA="/workspace/SVdata/SuperLimSE/SV_xnli_train.tsv"
 VALID_DATA="/workspace/SVdata/SuperLimSE/SV_xnli_test.tsv /workspace/SVdata/SuperLimSE/SV_xnli_dev.tsv"
 CHECKPOINT_PATH='/workspace/SVdata/sv_ckpt/downstream_ckpt/'
-VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
-MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
+VOCAB_FILE='/workspace/SVdata/wp/SV_HFWordPiece_vocab32k-vocab.txt'
 
-PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/'
-#PRETRAINED_CHECKPOINT='/workspace/zh_ckpt/'
+
+PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/wp_ckpt/'
+
 COMMON_TASK_ARGS="--num-layers 24 \
                   --hidden-size 1024 \
                   --num-attention-heads 16 \
                   --seq-length 512 \
                   --max-position-embeddings 512 \
                   --fp16 \
-                  --vocab-file $VOCAB_FILE \
-                  --merge-file $MERGE_FILE"
+                  --vocab-file $VOCAB_FILE"
 
 COMMON_TASK_ARGS_EXT="--train-data $TRAIN_DATA \
                       --valid-data $VALID_DATA \
@@ -36,7 +35,7 @@ python tasks/main.py \
        --task SV_XNLI \
        $COMMON_TASK_ARGS \
        $COMMON_TASK_ARGS_EXT \
-       --tokenizer-type HFBPETokenizer \
+       --tokenizer-type BertWordPieceLowerCase \
        --epochs 3 \
        --micro-batch-size 256 \
        --lr 5.0e-5 \

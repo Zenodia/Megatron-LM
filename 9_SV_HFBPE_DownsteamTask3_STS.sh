@@ -4,14 +4,15 @@
 #        args = get_args()
 #        print_rank_0('building classification model for {} ...'.format(args.task))
 #        return Classification(num_classes=num_classes, num_tokentypes= 2 5) change num_tokentypes from 2--> 5 
-TRAIN_DATA="/workspace/SVdata/SuperLimSE/SV_xnli_train.tsv"
-VALID_DATA="/workspace/SVdata/SuperLimSE/SV_xnli_test.tsv /workspace/SVdata/SuperLimSE/SV_xnli_dev.tsv"
+TRAIN_DATA="/workspace/SVdata/SuperLimSE/sts/out/SV_STS_train_with_index.tsv"
+VALID_DATA="/workspace/SVdata/SuperLimSE/sts/ou/SV_STS_test_with_index.tsv /workspace/SVdata/SuperLimSE/sts/ou/SV_STS_dev_with_index.tsv"
 CHECKPOINT_PATH='/workspace/SVdata/sv_ckpt/downstream_ckpt/'
 VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
 MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
 
-PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/'
-#PRETRAINED_CHECKPOINT='/workspace/zh_ckpt/'
+
+PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/bpe_ckpt/'
+
 COMMON_TASK_ARGS="--num-layers 24 \
                   --hidden-size 1024 \
                   --num-attention-heads 16 \
@@ -33,11 +34,11 @@ COMMON_TASK_ARGS_EXT="--train-data $TRAIN_DATA \
                       --weight-decay 1.0e-2"
 
 python tasks/main.py \
-       --task SV_XNLI \
+       --task SV_STS \
        $COMMON_TASK_ARGS \
        $COMMON_TASK_ARGS_EXT \
        --tokenizer-type HFBPETokenizer \
-       --epochs 3 \
+       --epochs 5 \
        --micro-batch-size 256 \
        --lr 5.0e-5 \
        --lr-warmup-fraction  0.065

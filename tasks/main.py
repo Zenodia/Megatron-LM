@@ -60,7 +60,7 @@ if __name__ == '__main__':
         from race.finetune import main
     elif args.task in ['MNLI', 'QQP','ZH_XNLI']:
         from glue.finetune import main
-    elif args.task in ['SVSentiment', 'SV_XNLI']:
+    elif args.task in ['SVSentiment', 'SV_XNLI','SV_STS']:
         from svglue.finetune import main
     elif args.task in ['LAMBADA', 'WIKITEXT103']:
         from zeroshot_gpt2.evaluate import main

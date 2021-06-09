@@ -13,21 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""MNLI dataset."""
+"""QQP dataset."""
 
 from megatron import print_rank_0
 from tasks.data_utils import clean_text
-from .data import SVGLUEAbstractDataset
+from .data import GLUEAbstractDataset
 import pandas as pd
 
 
-LABELS = {'1': 0, '2': 1 , '3' :2 ,'4':3 ,'5':4}
+LABELS = [0, 1 ,2]
 
 
-class SVSentimentDataset(SVGLUEAbstractDataset):
+class SV_STSDataset(GLUEAbstractDataset):
 
-    def __init__(self, name, datapaths, tokenizer, max_seq_length):        
-        super().__init__('SVSentimentDataset', name, datapaths,
+    def __init__(self, name, datapaths, tokenizer, max_seq_length,
+                 test_label=0):
+        self.test_label = test_label
+        super().__init__('SVSTS', name, datapaths,
                          tokenizer, max_seq_length)
 
     def process_samples_from_single_path(self, filename):
@@ -38,30 +40,35 @@ class SVSentimentDataset(SVGLUEAbstractDataset):
         total = 0
         first = True
         is_test = False
-        df=pd.read_csv(filename,sep='\t')
-        if 'test' in filename or 'dev' in filename :
-            is_test = True
-            print_rank_0(
-                '   reading index {}, and text {} columns and setting '
-                'labels to {}'.format(
-                    df.at[0,'index'], df.at[0,'text'], df.at[0,'label']))
-        else:
-            print_rank_0(
-                '   reading index {}, and text {} columns and setting '
-                'labels to {}'.format(
-                    df.at[0,'index'], df.at[0,'text'], df.at[0,'label']))
-        
+        df=pd.read_csv(filename,sep='\t')        
+        if first:
+            first = False
+            if 'test' in filename or 'dev' in filename :
+                is_test = True
+                print_rank_0('   reading {}, {}, and {} columns and '
+                             'setting labels to {}'.format(
+                                 df.at[0,'index'], df.at[0,'sentence1'],
+                                 df.at[0,'sentence2'], df.at[0,'label']))
+            else:
+                assert 'train' in filename
+                print_rank_0('   reading {}, {}, and {} columns and '
+                             'setting labels to {}'.format(
+                                 df.at[0,'index'], df.at[0,'sentence1'],
+                                 df.at[0,'sentence2'], df.at[0,'label']))
+                            
         n=len(df)                                  
         for ind in range(n):            
-            text = clean_text(df.at[ind,'text'].strip())                
+            text_a = clean_text(df.at[ind,'sentence1'].strip())
+            text_b = clean_text(df.at[ind,'sentence2'].strip()) 
             unique_id = int(df.at[ind,'index'])
-            label = str(round(float(df.at[ind,'label'])))
-            #print(i, unique_id, label , text)
-            assert len(text) > 0
+            label = int(round(float(df.at[ind,'label'])))
+            assert len(text_a) > 0
+            assert len(text_b) > 0
             assert label in LABELS
             assert unique_id >= 0
 
-            sample = {'text': text,
+            sample = {'text_a': text_a,
+                      'text_b': text_b,
                       'label': LABELS[label],
                       'uid': unique_id}
             total += 1
@@ -69,6 +76,4 @@ class SVSentimentDataset(SVGLUEAbstractDataset):
 
             if total % 50000 == 0:
                 print_rank_0('  > processed {} so far ...'.format(total))
-
-        print_rank_0(' >> processed {} samples.'.format(len(samples)))
         return samples

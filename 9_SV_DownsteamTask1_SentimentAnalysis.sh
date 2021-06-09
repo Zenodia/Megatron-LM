@@ -4,8 +4,8 @@
 #        args = get_args()
 #        print_rank_0('building classification model for {} ...'.format(args.task))
 #        return Classification(num_classes=num_classes, num_tokentypes= 2 5) change num_tokentypes from 2--> 5 
-TRAIN_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/SV_sentiment_train.tsv"
-VALID_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/SV_sentiment_test.tsv /workspace/SVdata/SuperLimSE/sentiment_processed/SV_sentiment_dev.tsv"
+TRAIN_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/Processed_train00.tsv"
+VALID_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/Processed_test00.tsv /workspace/SVdata/SuperLimSE/sentiment_processed/Processed_dev00.tsv"
 CHECKPOINT_PATH='/workspace/SVdata/sv_ckpt/downstream_ckpt/'
 VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
 MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
@@ -29,7 +29,7 @@ COMMON_TASK_ARGS_EXT="--train-data $TRAIN_DATA \
                       --save-interval 10000 \
                       --save $CHECKPOINT_PATH \
                       --log-interval 100 \
-                      --eval-interval 1000 \
+                      --eval-interval 100 \
                       --eval-iters 10 \
                       --weight-decay 1.0e-2"
 
@@ -38,7 +38,7 @@ python tasks/main.py \
        $COMMON_TASK_ARGS \
        $COMMON_TASK_ARGS_EXT \
        --tokenizer-type HFBPETokenizer \
-       --epochs 1 \
-       --micro-batch-size 128 \
+       --epochs 5 \
+       --micro-batch-size 16 \
        --lr 5.0e-5 \
        --lr-warmup-fraction  0.065

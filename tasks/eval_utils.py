@@ -44,10 +44,10 @@ def accuracy_func_provider(single_dataset_provider):
         dataloaders.append((dataset.dataset_name, dataloader))  
         
         
-    def metrics_func(model, epoch, output_predictions=True):
+    def metrics_func(model, epoch, output_predictions=False):
         if output_predictions :
-            f_test_out=open('/workspace/SVdata/sv_ckpt/downstream_ckpt/test_predict.csv','a')
-            f_dev_out=open('/workspace/SVdata/sv_ckpt/downstream_ckpt/dev_predict.csv','a')
+            f_test_out=open('/workspace/SVdata/sv_ckpt/downstream_ckpt/test00predict.csv','a')
+            f_dev_out=open('/workspace/SVdata/sv_ckpt/downstream_ckpt/dev00predict.csv','a')
         print_rank_last('calculating metrics ...')
         correct = 0
         total = 0
@@ -92,17 +92,16 @@ def accuracy_func_provider(single_dataset_provider):
             percent = float(correct) * 100.0 / float(total)
             print(' >> |epoch: {}| overall: correct / total = {} / {} = '
                   '{:.4f} %'.format(epoch, correct, total, percent))
-            if 'SV_sentiment_test' in name:
+            if 'SV_sentiment_test' in name and output_predictions:
                 f_test_out.close()
-            elif 'SV_sentiment_dev' in name:
+            elif 'SV_sentiment_dev' in name and output_predictions:
                 f_dev_out.close()   
             else:pass
+        """
         if output_predictions and is_last_rank():
-            assert args.load is not None
+            assert args.save is not None
             filename = os.path.join(args.save, names + '.pt')
-            torch.save(named_predictions, filename)
-            
-                    
+            torch.save(named_predictions, filename)"""
 
     return metrics_func
 

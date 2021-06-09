@@ -1,5 +1,7 @@
-INPUT_JSON_FILE=/workspace/SVdata/cleaned/SVcleaned.json
-OUTPUT_PATH=/workspace/SVdata/test/SV_WordPiece32k_Bert
+#INPUT_JSON_FILE=/workspace/SVdata/cleaned/SVcleaned.json
+INPUT_JSON_FILE=/workspace/SVdata/cleaned/sv.json
+
+OUTPUT_PATH=/workspace/SVdata/test/SVsprakbank_HFBPE32k_Bert
 VOCAB_FILE=/workspace/SVdata/bpe/32k/vocab.json
 MERGE_FILE=/workspace/SVdata/bpe/32k/merges.txt
 NUM_CPUS=1

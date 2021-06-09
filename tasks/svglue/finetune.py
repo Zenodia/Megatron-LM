@@ -63,10 +63,7 @@ def glue_classification(num_classes, Dataset,
             elif args.tokenizer_type=='HFBPETokenizer' and args.task=='QQP' :
                 print("============== using custom HuggingFace BPE Tokenizer:{} on task:{} ==============".format(args.tokenizer_type,args.task))
                 model = Classification(num_classes=num_classes, num_tokentypes=5)
-            elif args.tokenizer_type=='HFBPETokenizer' and args.task=='SVSentiment' :
-                print("============== using custom HuggingFace BPE Tokenizer:{} on task:{} ==============".format(args.tokenizer_type,args.task))
-                model = Classification(num_classes=num_classes, num_tokentypes=5)
-            elif args.tokenizer_type=='HFBPETokenizer' and args.task=='SV_XNLI' :
+            elif args.tokenizer_type in ['HFBPETokenizer','BertWordPieceLowerCase'] and args.task in ['SV_XNLI','SVSentiment','SV_STS'] :
                 print("============== using custom HuggingFace BPE Tokenizer:{} on task:{} ==============".format(args.tokenizer_type,args.task))
                 model = Classification(num_classes=num_classes, num_tokentypes=5)
             else:
@@ -101,6 +98,11 @@ def main():
     elif  args.task == 'SV_XNLI':
         num_classes = 3
         from tasks.svglue.svxnli import SV_XNLIDataset as Dataset
+        def name_from_datapath(datapath):
+            return datapath  
+    elif  args.task == 'SV_STS':
+        num_classes = 3
+        from tasks.svglue.svsts import SV_STSDataset as Dataset
         def name_from_datapath(datapath):
             return datapath  
     else:
