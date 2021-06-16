@@ -90,7 +90,7 @@ def main():
     args = get_args()
 
     if args.task == 'SVSentiment':
-        num_classes = 5
+        num_classes = 3
         from tasks.svglue.svsent import SVSentimentDataset as Dataset
         def name_from_datapath(datapath):
             return datapath

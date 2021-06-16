@@ -1,7 +1,7 @@
-INPUT_JSON_FILE=/workspace/SVdata/cleaned/SVcleaned.json
-OUTPUT_PATH=/workspace/SVdata/test/SV32k_GPT_
-VOCAB_FILE=/workspace/SVdata/bpe/32k/vocab.json
-MERGE_FILE=/workspace/SVdata/bpe/32k/merges.txt
+INPUT_JSON_FILE=/workspace/SVdata/cleaned/sv.json
+OUTPUT_PATH=/workspace/SVdata/test/gpttest
+VOCAB_FILE=/workspace/SVdata/gpt2bpe/32k/vocab.json
+MERGE_FILE=/workspace/SVdata/gpt2bpe/32k/merges.txt
 NUM_CPUS=1
 
 python tools/preprocessSVdata.py \

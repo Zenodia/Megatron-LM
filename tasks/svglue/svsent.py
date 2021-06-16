@@ -21,7 +21,7 @@ from .data import SVGLUEAbstractDataset
 import pandas as pd
 
 
-LABELS = {'1': 0, '2': 1 , '3' :2 ,'4':3 ,'5':4}
+LABELS = {'-1': 0, '0': 1 , '1' :2 }
 
 
 class SVSentimentDataset(SVGLUEAbstractDataset):
@@ -44,18 +44,19 @@ class SVSentimentDataset(SVGLUEAbstractDataset):
             print_rank_0(
                 '   reading index {}, and text {} columns and setting '
                 'labels to {}'.format(
-                    df.at[0,'index'], df.at[0,'text'], df.at[0,'label']))
+                    df.at[0,'index'], df.at[0,'text'], df.at[0,'label_simple']))
         else:
             print_rank_0(
                 '   reading index {}, and text {} columns and setting '
                 'labels to {}'.format(
-                    df.at[0,'index'], df.at[0,'text'], df.at[0,'label']))
+                    df.at[0,'index'], df.at[0,'text'], df.at[0,'label_simple']))
         
         n=len(df)                                  
         for ind in range(n):            
             text = clean_text(df.at[ind,'text'].strip())                
             unique_id = int(df.at[ind,'index'])
-            label = str(round(float(df.at[ind,'label'])))
+            #label = str(round(float(df.at[ind,'label_simple'])))
+            label = str(df.at[ind,'label_simple'])
             #print(i, unique_id, label , text)
             assert len(text) > 0
             assert label in LABELS

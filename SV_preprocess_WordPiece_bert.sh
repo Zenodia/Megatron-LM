@@ -1,6 +1,7 @@
-INPUT_JSON_FILE=/workspace/SVdata/cleaned/SVcleaned.json
-OUTPUT_PATH=/workspace/SVdata/preprocessed/SV_WordPiece32k_Bert
-VOCAB_FILE=/workspace/SVdata/wp/SV_HFWordPiece_vocab32k-vocab.txt
+#INPUT_JSON_FILE=/workspace/SVdata/cleaned/SVcleaned.json
+INPUT_JSON_FILE=/workspace/SVdata/raw/json/79803/SV_CC100Sprakbank.json
+OUTPUT_PATH=/workspace/SVdata/ngc/SVCC100_sprakbank_32kWP
+VOCAB_FILE=/workspace/SVdata/wp/SVCC100sprakbank_HFWP32k-vocab.txt
 NUM_CPUS=1
 
 

@@ -4,14 +4,18 @@
 #        args = get_args()
 #        print_rank_0('building classification model for {} ...'.format(args.task))
 #        return Classification(num_classes=num_classes, num_tokentypes= 2 5) change num_tokentypes from 2--> 5 
-TRAIN_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/Processed_train00.tsv"
-VALID_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/Processed_test00.tsv /workspace/SVdata/SuperLimSE/sentiment_processed/Processed_dev00.tsv"
-CHECKPOINT_PATH='/workspace/SVdata/sv_ckpt/downstream_ckpt/'
-VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
-MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
+TRAIN_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/Processed_3classes_train00.tsv"
+VALID_DATA="/workspace/SVdata/SuperLimSE/sentiment_processed/Processed_3classes_test00.tsv /workspace/SVdata/SuperLimSE/sentiment_processed/Processed_3classes_dev00.tsv"
 
-PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/'
+CHECKPOINT_PATH='/workspace/SVdata/sv_ckpt/downstream_ckpt/'
+#VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
+#MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
+VOCAB_FILE='/workspace/SVdata/test/bpe_updated/32k/vocab.json'
+MERGE_FILE='/workspace/SVdata/test/bpe_updated/32k/merges.txt'
+
+#PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/'
 #PRETRAINED_CHECKPOINT='/workspace/zh_ckpt/'
+PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/bpe_ckpt/2039182/'
 
 COMMON_TASK_ARGS="--num-layers 24 \
                   --hidden-size 1024 \
@@ -39,6 +43,6 @@ python tasks/main.py \
        $COMMON_TASK_ARGS_EXT \
        --tokenizer-type HFBPETokenizer \
        --epochs 5 \
-       --micro-batch-size 16 \
+       --micro-batch-size 256 \
        --lr 5.0e-5 \
        --lr-warmup-fraction  0.065

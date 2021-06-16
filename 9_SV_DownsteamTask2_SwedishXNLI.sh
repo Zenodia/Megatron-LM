@@ -10,7 +10,7 @@ CHECKPOINT_PATH='/workspace/SVdata/sv_ckpt/downstream_ckpt/'
 VOCAB_FILE='/workspace/SVdata/bpe/32k/vocab.json'
 MERGE_FILE='/workspace/SVdata/bpe/32k/merges.txt'
 
-PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/'
+PRETRAINED_CHECKPOINT='/workspace/SVdata/sv_ckpt/pretrained/bpe_ckpt/2039182'
 #PRETRAINED_CHECKPOINT='/workspace/zh_ckpt/'
 COMMON_TASK_ARGS="--num-layers 24 \
                   --hidden-size 1024 \
