@@ -54,7 +54,7 @@ class MegatronPretrainingSampler:
                  data_parallel_rank, data_parallel_size):
         # Keep a copy of input params for later use.
         self.total_samples = total_samples
-        self.consumed_samples = consumed_samples if consumed_samples < total_samples else 0
+        self.consumed_samples = consumed_samples #if consumed_samples < total_samples else 0
         self.micro_batch_size = micro_batch_size
         self.data_parallel_rank = data_parallel_rank
         self.micro_batch_times_data_parallel_size = self.micro_batch_size * \
