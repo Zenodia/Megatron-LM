@@ -1,0 +1,7 @@
+# to check job status 
+scontrol show job YOUR_JOB_ID
+
+#sinfo 
+
+#resume from previous script
+sbatch --partition=dgx2 --dependency=afterany:<jobid> <myscript>.sh
